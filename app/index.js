@@ -2,11 +2,8 @@ import { SplashScreen, useRouter } from "expo-router";
 
 import React from "react";
 import { View, Image, Platform } from "react-native";
-import { getAuth } from "./helpers/auth";
+import { getAuth } from "./utils/util";
 SplashScreen.preventAutoHideAsync();
-
-const blurhash =
-  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 export default function Splash() {
   const router = useRouter();
@@ -24,15 +21,15 @@ export default function Splash() {
           // When all loading is setup, unmount the splash screen component.
           SplashScreen.hideAsync();
           setReady(true);
-          router.replace("/customer");
-        }, 1000);
+          router.replace("screens");
+        }, 4000);
       } else {
         setTimeout(() => {
           // When all loading is setup, unmount the splash screen component.
           SplashScreen.hideAsync();
           setReady(true);
-          router.replace("Landing");
-        }, 1000);
+          router.replace("login");
+        }, 4000);
       }
     };
     authenticate();
@@ -55,7 +52,7 @@ export default function Splash() {
           justifyContent: "center",
           alignItems: "center",
         }}
-        source={require("../assets/logo.png")}
+        source={require("../assets/images/logo.png")}
         contentFit="cover"
         transition={1000}
       />

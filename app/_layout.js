@@ -1,7 +1,6 @@
-import * as eva from "@eva-design/eva";
-import { ApplicationProvider } from "@ui-kitten/components";
 import { Stack } from "expo-router";
-import { ToastProvider } from "react-native-toast-notifications";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+//import { ToastProvider } from "react-native-toast-notifications";
 // import * as Sentry from "sentry-expo";
 
 // Sentry.init({
@@ -12,17 +11,15 @@ import { ToastProvider } from "react-native-toast-notifications";
 
 const StackLayout = () => {
   return (
-    <ApplicationProvider {...eva} theme={eva.light}>
-      <ToastProvider>
-        <Stack>
-          <Stack.Screen name="customer" options={{ headerShown: false }} />
-
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="Login" options={{ headerShown: false }} />
-          <Stack.Screen name="Landing" options={{ headerShown: false }} />
-        </Stack>
-      </ToastProvider>
-    </ApplicationProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack initialRouteName="index">
+        <Stack.Screen name="screens" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="signup" options={{ headerShown: false }} />
+        <Stack.Screen name="landing" options={{ headerShown: false }} />
+      </Stack>
+    </GestureHandlerRootView>
   );
 };
 
