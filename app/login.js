@@ -17,12 +17,12 @@ import { useRouter } from "expo-router";
 import constants from "./utils/constants";
 import axios from "axios";
 import CustomAlert from "./utils/alert";
-import { saveAuth } from "./utils/util";
+import { saveAuth, getAuth } from "./utils/util";
 import * as LocalAuthentication from "expo-local-authentication"; // For biometric authentication
 
 const LoginScreen = () => {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isBiometricSupported, setIsBiometricSupported] = useState(false); // State for biometrics support
@@ -37,12 +37,13 @@ const LoginScreen = () => {
   }, []);
 
   const handleSubmit = async () => {
-    if (email === "" || password === "") {
+    if (phone === "" || password === "") {
       CustomAlert("Warning", "All fields are required");
       return;
     }
 
-    const data = JSON.stringify({ email, password });
+    const data = JSON.stringify({ phone, password });
+    console.log(data)
 
     setLoading(true);
 
@@ -74,15 +75,24 @@ const LoginScreen = () => {
 
   const handleBiometricLogin = async () => {
     try {
+      // Retrieve saved authentication details
+      const savedAuth = await getAuth();
+
+      if (savedAuth === null) {
+        CustomAlert("Error", "No saved user data found for biometric login.");
+        return;
+      }
+
+      // Authenticate using biometrics
       const biometricAuth = await LocalAuthentication.authenticateAsync({
         promptMessage: "Login with Biometrics",
         fallbackLabel: "Use Password",
       });
 
       if (biometricAuth.success) {
-        // Handle successful biometric authentication
-        console.log("Biometric login successful");
+        // Use saved credentials to log in if biometrics are successful
         router.replace("screens");
+       
       } else {
         CustomAlert("Failed", "Biometric authentication failed");
       }
@@ -120,11 +130,11 @@ const LoginScreen = () => {
                   />
                   <TextInput
                     style={styles.content_textInput}
-                    placeholder="Email"
+                    placeholder="Phone"
                     autoCapitalize="none"
-                    keyboardType="email-address"
-                    textContentType="emailAddress"
-                    onChangeText={(email) => setEmail(email)}
+                    keyboardType="phone-pad"
+                    textContentType="telephoneNumber"
+                    onChangeText={(phone) => setPhone(phone)}
                   />
                 </View>
 

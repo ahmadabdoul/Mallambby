@@ -11,26 +11,14 @@ export default function Splash() {
   const [user, setUser] = React.useState([]);
   React.useEffect(() => {
     const authenticate = async () => {
-      // Perform some sort of async data or asset fetching.
-      let userAuth = await getAuth();
-      console.log(userAuth);
-      setUser(userAuth);
-      if (userAuth !== null) {
-        setTimeout(() => {
-          //console.log(user);
-          // When all loading is setup, unmount the splash screen component.
-          SplashScreen.hideAsync();
-          setReady(true);
-          router.replace("screens");
-        }, 4000);
-      } else {
+      
         setTimeout(() => {
           // When all loading is setup, unmount the splash screen component.
           SplashScreen.hideAsync();
           setReady(true);
           router.replace("login");
         }, 4000);
-      }
+      
     };
     authenticate();
   }, []);
