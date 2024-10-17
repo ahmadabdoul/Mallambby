@@ -26,6 +26,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isBiometricSupported, setIsBiometricSupported] = useState(false); // State for biometrics support
+  const [savedName, setSavedName] = useState(""); // State to hold the saved user's name if it exists
 
   useEffect(() => {
     // Check if the device supports biometric authentication
@@ -33,7 +34,18 @@ const LoginScreen = () => {
       const isSupported = await LocalAuthentication.hasHardwareAsync();
       setIsBiometricSupported(isSupported);
     };
+
+    // Check for saved authentication data and prepopulate fields
+    const checkSavedAuth = async () => {
+      const savedAuth = await getAuth();
+      if (savedAuth) {
+        setPhone(savedAuth.phone);
+        setSavedName(savedAuth.name); // Assuming savedAuth contains a 'name' field
+      }
+    };
+
     checkBiometricSupport();
+    checkSavedAuth();
   }, []);
 
   const handleSubmit = async () => {
@@ -43,7 +55,7 @@ const LoginScreen = () => {
     }
 
     const data = JSON.stringify({ phone, password });
-    console.log(data)
+    console.log(data);
 
     setLoading(true);
 
@@ -58,7 +70,7 @@ const LoginScreen = () => {
       console.log(responseJson);
 
       if (responseJson.status === 0) {
-        await saveAuth(responseJson);
+        await saveAuth(responseJson.data);
         console.log("saved");
 
         setLoading(false);
@@ -92,7 +104,6 @@ const LoginScreen = () => {
       if (biometricAuth.success) {
         // Use saved credentials to log in if biometrics are successful
         router.replace("screens");
-       
       } else {
         CustomAlert("Failed", "Biometric authentication failed");
       }
@@ -116,7 +127,10 @@ const LoginScreen = () => {
           <View style={styles.container_childBox}>
             <View style={styles.header}>
               <View style={styles.header_text_box}>
-                <Text style={styles.header_text_h1}>Welcome Back</Text>
+                {/* Display a personalized message if user data exists */}
+                <Text style={styles.header_text_h1}>
+                  {savedName ? `Welcome Back, ${savedName}` : "Welcome Back"}
+                </Text>
               </View>
             </View>
             <View style={styles.content}>
@@ -134,6 +148,7 @@ const LoginScreen = () => {
                     autoCapitalize="none"
                     keyboardType="phone-pad"
                     textContentType="telephoneNumber"
+                    value={phone} // Prepopulate with saved phone number
                     onChangeText={(phone) => setPhone(phone)}
                   />
                 </View>
@@ -168,7 +183,7 @@ const LoginScreen = () => {
               <View style={styles.btn_box}>
                 <View style={styles.btn_row}>
                   <Button
-                    buttonStyle={[styles.btn, {width: "95%"}]}
+                    buttonStyle={[styles.btn, { width: "95%" }]}
                     title={"Login"}
                     loading={loading}
                     onPress={() => handleSubmit()}
@@ -224,6 +239,7 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
+
 
 const styles = StyleSheet.create({
   container: {
