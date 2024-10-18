@@ -42,8 +42,13 @@ export const getAuth = async () => {
 
 export const getUserWallet = async (email) => {
   try {
+    const data = JSON.stringify({ email });
     const response = await axios.post(
-      constants.url + "fetch-wallet-account.php?email=" + email
+      constants.url + "fetch-wallet-account.php", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
 
     const responseJson = response.data;
