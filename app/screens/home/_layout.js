@@ -8,7 +8,7 @@ const StackLayout = () => {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen
         name="topup"
-        options={{ presentation: "modal", title: "Add Money" }}
+        options={{ presentation: "modal", headerShown: false}}
       />
       <Stack.Screen name="buydata" options={{ title: "Buy Data" }} />
       <Stack.Screen name="electricity" options={{ title: "Buy Electricity" }} />

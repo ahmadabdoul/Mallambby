@@ -19,6 +19,7 @@ import { useRouter } from "expo-router";
 import { getAuth } from "../../utils/util";
 import CustomAlert from "../../utils/alert";
 import * as WebBrowser from "expo-web-browser";
+import AccountTabs from "../../components/accounts";
 
 const BuyData = () => {
   const { width } = useWindowDimensions();
@@ -30,13 +31,6 @@ const BuyData = () => {
   const [balance, setBalance] = useState("0.00");
   const [amount, setAmount] = useState("");
   const [result, setResult] = useState(null);
-
-  useEffect(() => {
-    const user = getAuth();
-    setUser(user);
-
-    //getWallet();
-  }, []);
 
   // const getWallet = async () => {
   //   setLoading(true);
@@ -123,12 +117,7 @@ const BuyData = () => {
   const WalletForm = () => {
     return (
       <View
-        style={{
-          flex: 4,
-          // backgroundColor: "blue",
-          width: "100%",
-          padding: 8,
-        }}
+       
       >
         <View style={{ marginTop: 20 }}>
           <TextInput
@@ -220,18 +209,14 @@ const BuyData = () => {
   // };
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-      }}
-    >
+    <SafeAreaView style={styles.container}>
       <View
         style={{
           flex: 1,
           backgroundColor: colorsVar.background,
         }}
       >
-        {WalletForm()}
+        <AccountTabs />
 
         <View
           style={{
@@ -255,6 +240,11 @@ const BuyData = () => {
 export default BuyData;
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colorsVar.primaryColor,
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? 30 : 0,
+  },
   btn: {
     marginTop: 30,
     backgroundColor: "white",
