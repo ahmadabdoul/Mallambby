@@ -5,6 +5,8 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
+  ScrollView,
+  RefreshControl
 } from "react-native";
 import React, {
   useState,
@@ -29,6 +31,9 @@ const HeaderTop = () => {
   const [walletStatus, setWalletStatus] = useState(false);
   const [balance, setBalance] = useState("0.00");
   const router = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
+  const [initials, setInitials] = useState("");
+
 
   useEffect(() => {
     const user = getAuth();
@@ -40,7 +45,8 @@ const HeaderTop = () => {
     setLoading(true);
     const user = await getAuth();
     setUser(user);
-
+    const initials = user.name.split(" ").filter(Boolean).slice(0, 2).map(word => word[0]).join("")
+    setInitials(initials);
     const balance = await getUserWallet(user.email);
     setBalance(balance);
 
@@ -71,6 +77,11 @@ const HeaderTop = () => {
 
   return (
     <View>
+      <ScrollView
+        contentContainerStyle={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} />
+        }>
       <View style={styles.header_top}>
         <View style={styles.balance_wrapper}>
           <View style={styles.balance_container_wrapper}>
@@ -87,7 +98,7 @@ const HeaderTop = () => {
         <View>
           <Avatar
             size={50}
-            title="sp"
+            title={initials}
             rounded
             containerStyle={{ backgroundColor: colorsVar.primaryColor }}
           />
@@ -108,6 +119,7 @@ const HeaderTop = () => {
         }}
         onPress={() => router.push("screens/home/topup")}
       />
+      </ScrollView>
     </View>
   );
 };
