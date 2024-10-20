@@ -95,22 +95,7 @@ const HeaderList = () => {
           </TouchableOpacity>
           <Text style={{ color: "#ffff" }}>Airtime</Text>
         </View>
-        <View style={styles.header_item}>
-          <TouchableOpacity
-            onPress={() => router.push("screens/home/buydata")}
-            style={styles.header_list}
-          >
-            <Image
-              source={require("../../assets/airtime.jpg")}
-              style={{
-                width: 50,
-                height: 50,
-                resizeMode: "contain",
-              }}
-            />
-          </TouchableOpacity>
-          <Text style={{ color: "#ffff" }}>Airtime</Text>
-        </View>
+        
       </View>
     </>
   );

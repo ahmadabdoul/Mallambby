@@ -5,20 +5,10 @@ const ContentTop = () => {
   return (
     <View style={{ padding: 15, gap: 15 }}>
       <View style={styles.top}>
-        <Text>Recent Transactions</Text>
+        <Text style={{fontSize: 18, fontWeight: "bold"}}>Recent Transactions</Text>
         <Text>See All</Text>
       </View>
-      <View style={styles.category_wrapper}>
-        <View style={styles.category}>
-          <Text>All</Text>
-        </View>
-        <View style={styles.category}>
-          <Text>All</Text>
-        </View>
-        <View style={styles.category}>
-          <Text>All</Text>
-        </View>
-      </View>
+      
     </View>
   );
 };
