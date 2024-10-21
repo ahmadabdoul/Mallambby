@@ -3,11 +3,13 @@ import HeaderComponent from "../../components/header";
 import ContentComponent from "../../components/content";
 import { StyleSheet, SafeAreaView, Platform } from "react-native";
 import { Link } from "expo-router";
+import Carousel from "../../components/carousel";
 
 const Home = () => {
   return (
     <SafeAreaView style={styles.container}>
       <HeaderComponent />
+      <Carousel />
       <ContentComponent />
     </SafeAreaView>
   );
