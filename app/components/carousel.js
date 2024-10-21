@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     borderRadius: 15, // Border radius for entire carousel
     overflow: "hidden", // Ensures slides stay within the rounded border
     alignSelf: "center",
-    marginTop: 56,
+    marginTop: 16,
     marginBottom: 16,
   },
   slide: {

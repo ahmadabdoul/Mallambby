@@ -80,7 +80,7 @@ const HeaderList = () => {
         }}
       >
         <View style={styles.header_item}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => router.push("screens/home/buydata")}
             style={styles.header_list}
           >
@@ -93,7 +93,7 @@ const HeaderList = () => {
               }}
             />
           </TouchableOpacity>
-          <Text style={{ color: "#ffff" }}>Airtime</Text>
+          <Text style={{ color: "#ffff" }}>Airtime</Text> */}
         </View>
         
       </View>
