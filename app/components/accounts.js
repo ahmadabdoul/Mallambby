@@ -18,6 +18,7 @@ import CustomAlert from "../utils/alert";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { Button } from "@rneui/base";
 import * as WebBrowser from 'expo-web-browser';
+import * as Clipboard from 'expo-clipboard'; // Import the clipboard functionality
 
 const AccountTabs = () => {
   const [loading, setLoading] = useState(false);
@@ -61,12 +62,12 @@ const AccountTabs = () => {
         }
       );
       const responseJson = response.data;
-
+      console.log(responseJson)
       if (responseJson.status === 0) {
         const wemabank = { account: responseJson.data.sBankNo };
         const rolexbank = { account: responseJson.data.sRolexBank };
         const sterlingbank = { account: responseJson.data.sSterlingBank };
-        const manualbank = responseJson.siteAccount;
+        const manualbank = responseJson.data.siteAccount;
 
         setManual(manualbank);
         setWema(wemabank);
@@ -135,29 +136,56 @@ const AccountTabs = () => {
     </ScrollView>
   );
 
-  const ManualTab = () => (
+ 
+
+
+const ManualTab = () => {
+  const copyToClipboard = () => {
+    const accountDetails = `Account Name: ${manual.accountName}, Account No: ${manual.accountNo}, Bank: ${manual.bankName}`;
+    Clipboard.setString(accountDetails);
+    CustomAlert("Copied", "Account details copied to clipboard!");
+  };
+
+  const contactAdmin = async() => {
+    await WebBrowser.openBrowserAsync('https://wa.me/+2348062278474');
+  };
+
+  return (
     <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={refresh} />
-      }
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
       style={styles.scrollViewContainer}
     >
-      {manual && manual.accountName ? (
+      {manual && manual.accountName && manual.accountNo && manual.bankName ? (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{manual.accountName}</Text>
           <Text style={styles.cardSubtitle}>Account No: {manual.accountNo}</Text>
           <Text style={styles.cardSubtitle}>Bank: {manual.bankName}</Text>
+
+          {/* Buttons Container */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={copyToClipboard}>
+              <Ionicons name="copy" size={20} color="white" />
+              <Text style={styles.buttonText}>Copy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={contactAdmin}>
+              <Ionicons name="logo-whatsapp" size={20} color="white" />
+              <Text style={styles.buttonText}>Contact Admin</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <Text style={styles.emptyText}>Manual account information is not available.</Text>
       )}
     </ScrollView>
   );
+};
 
-  const renderScene = SceneMap({
-    bank: BankTab,
-    manual: ManualTab,
-  });
+
+const renderScene = SceneMap({
+  bank: BankTab,
+  manual: ManualTab,
+});
+
 
   return (
     <View style={styles.container}>
@@ -270,4 +298,24 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     backgroundColor: "#fff", // Ensure the ScrollView background is white
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colorsVar.primaryColor,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    width: "48%", // To make the buttons side by side and of equal width
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    marginLeft: 5, // To provide some space between the icon and text
+  },
+  
 });

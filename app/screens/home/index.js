@@ -19,7 +19,7 @@ export default Home;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colorsVar.secondary,
+    backgroundColor: "transparent",
     flex: 1,
     paddingTop: Platform.OS === "android" ? 30 : 0,
   },

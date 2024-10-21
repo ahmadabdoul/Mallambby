@@ -87,10 +87,10 @@ const HeaderTop = () => {
           <View style={styles.balance_container_wrapper}>
             <Text style={styles.balance}>N{balance}</Text>
             {loading ? (
-              <ActivityIndicator size={28} animating={loading} color="white" />
+              <ActivityIndicator size={28} animating={loading} color="black" />
             ) : (
               <TouchableOpacity onPress={refresh}>
-                <Ionicons name="refresh" size={30} color="white" />
+                <Ionicons name="refresh" size={30} color="black" />
               </TouchableOpacity>
             )}
           </View>
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   },
   balance: {
     fontSize: 28,
-    color: "white",
+    color: "black",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",

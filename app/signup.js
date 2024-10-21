@@ -13,7 +13,7 @@ import {
 import { useState } from "react";
 import { colorsVar } from "./utils/colors";
 import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
-import Waves from "./Assets/ssspill1.svg";
+
 import { StatusBar } from "expo-status-bar";
 import { Icon, Button } from "@rneui/themed";
 import { useRouter } from "expo-router";

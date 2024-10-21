@@ -20,7 +20,7 @@ export default HeaderComponent;
 const styles = StyleSheet.create({
   header: {
     flex: 1.5,
-    backgroundColor: colorsVar.secondary,
+    backgroundColor: colorsVar.background,
     padding: 10,
   },
 });

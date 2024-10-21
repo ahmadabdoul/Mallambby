@@ -25,7 +25,7 @@ const HeaderList = () => {
               }}
             />
           </TouchableOpacity>
-          <Text style={{ color: "#ffff" }}>Airtime</Text>
+          <Text style={{ color: "black" }}>Airtime</Text>
         </View>
         <View style={styles.header_item}>
           <View style={styles.header_list}>
@@ -38,7 +38,7 @@ const HeaderList = () => {
               }}
             />
           </View>
-          <Text style={{ color: "#ffff" }}>Data</Text>
+          <Text style={{ color: "black" }}>Data</Text>
         </View>
         <View style={styles.header_item}>
           <View style={styles.header_list}>
@@ -51,7 +51,7 @@ const HeaderList = () => {
               }}
             />
           </View>
-          <Text style={{ color: "#ffff" }}>Cable Tv</Text>
+          <Text style={{ color: "black" }}>Cable Tv</Text>
         </View>
         <TouchableOpacity
           style={styles.header_item}
@@ -67,7 +67,7 @@ const HeaderList = () => {
               }}
             />
           </View>
-          <Text style={{ color: "#ffff" }}>Electricity</Text>
+          <Text style={{ color: "black" }}>Electricity</Text>
         </TouchableOpacity>
       </View>
 
@@ -93,7 +93,7 @@ const HeaderList = () => {
               }}
             />
           </TouchableOpacity>
-          <Text style={{ color: "#ffff" }}>Airtime</Text> */}
+          <Text style={{ color: "black" }}>Airtime</Text> */}
         </View>
         
       </View>

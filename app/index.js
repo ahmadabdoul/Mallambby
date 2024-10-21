@@ -40,7 +40,7 @@ export default function Splash() {
           justifyContent: "center",
           alignItems: "center",
         }}
-        source={require("../assets/images/logo.png")}
+        source={require("../assets/logo.jpg")}
         contentFit="cover"
         transition={1000}
       />
