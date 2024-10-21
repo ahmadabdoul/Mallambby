@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet } from "react-native";
 import React from "react";
-
+import { Link } from "expo-router";
 const ContentTop = () => {
   return (
     <View style={{ padding: 15, gap: 15 }}>
       <View style={styles.top}>
         <Text style={{fontSize: 18, fontWeight: "bold"}}>Recent Transactions</Text>
-        <Text>See All</Text>
+        <Link style={{fontSize: 14, fontWeight: "bold"}} href="../screens/transactions">See All</Link>
       </View>
       
     </View>
