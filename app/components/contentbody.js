@@ -11,6 +11,7 @@ const ContentBody = () => {
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState([]);
   const [message, setMessage] = useState(""); // To store any message from the response
+  const [refreshing, setRefreshing] = useState(false); // State for pull-to-refresh
 
   // Fetch user and transactions when the component mounts
   useEffect(() => {
@@ -27,6 +28,7 @@ const ContentBody = () => {
   const fetchTransactions = async (userEmail) => {
     try {
       setLoading(true);
+      setRefreshing(false); // Ensure refreshing state is false when fetching
       const data = JSON.stringify({ email: userEmail });
       const response = await axios.post(
         constants.url + "fetch-transactions.php", // Modify this URL according to your backend setup
@@ -44,25 +46,28 @@ const ContentBody = () => {
           const sortedTransactions = response.data.transactions.sort(
             (a, b) => new Date(b.date) - new Date(a.date)
           );
-          const limitedTransactions = sortedTransactions.slice(0, 5); // Limit to 5 latest transactions
-          setTransactions(limitedTransactions);
+          setTransactions(sortedTransactions); // Set all transactions, remove limit to display all
         } else {
           // Set the message if there are no transactions
           setMessage("No transactions yet");
-          setLoading(false)
         }
       } else {
         // If status is not 0, set the response message
         setMessage(response.data.message);
-        setLoading(false)
       }
     } catch (error) {
       console.error("Error fetching transactions:", error);
       CustomAlert('Error', error);
-      setLoading(false);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Function to handle pull-to-refresh
+  const handleRefresh = async () => {
+    setRefreshing(true); // Set refreshing to true to show loading indicator
+    await fetchTransactions(email); // Re-fetch transactions
+    setRefreshing(false); // Reset refreshing state
   };
 
   if (loading) {
@@ -77,16 +82,14 @@ const ContentBody = () => {
   return (
     <View style={{ padding: 15, gap: 10 }}>
       <View style={{ gap: 10 }}>
-        {transactions.length > 0 ? (
-          <FlatList
-            data={transactions}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <ContentCard item={item} />}
-          />
-        ) : (
-          // Display the message if there are no transactions or an error message
-          <Text style={styles.messageText}>{message}</Text>
-        )}
+        <FlatList
+          data={transactions}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => <ContentCard item={item} />}
+          refreshing={refreshing} // Add refreshing prop to FlatList
+          onRefresh={handleRefresh} // Add onRefresh prop to FlatList
+          ListEmptyComponent={<Text style={styles.messageText}>{message}</Text>} // Handle empty state
+        />
       </View>
     </View>
   );
