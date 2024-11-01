@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 
-export const InputField = ({ label, placeholder, keyboardType = 'default', onChangeText }) => (
+export const InputField = ({ label, placeholder, editable=true, value='',  keyboardType = 'default', onChangeText }) => (
   <View style={styles.inputContainer}>
     <Text style={styles.label}>{label}</Text>
     <TextInput
@@ -9,6 +9,8 @@ export const InputField = ({ label, placeholder, keyboardType = 'default', onCha
       placeholder={placeholder}
       keyboardType={keyboardType}
       onChangeText={onChangeText}
+      value={value}
+      editable={editable}
     />
   </View>
 );

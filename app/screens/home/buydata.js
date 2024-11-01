@@ -13,13 +13,14 @@ export default function BuyDataScreen() {
   const [selectedNetwork, setSelectedNetwork] = useState(null);
   const [dataTypes, setDataTypes] = useState([]);
   const [selectedDataType, setSelectedDataType] = useState(null);
+  const [plans, setPlans] = useState([]); 
+  const [filteredPlans, setFilteredPlans] = useState([]); 
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
-  const [plans, setPlans] = useState([]); // New state to store fetched plans
 
   useEffect(() => {
-    // Fetch network data from API
     const fetchNetworks = async () => {
       try {
         const response = await fetch(constants.url + 'fetch-networks.php');
@@ -33,55 +34,65 @@ export default function BuyDataScreen() {
         Alert.alert('Error', 'Network request failed');
       }
     };
-
     fetchNetworks();
   }, []);
 
   useEffect(() => {
-    // Update data types based on the selected network
     if (selectedNetwork) {
       const network = networks.find((item) => item.network === selectedNetwork);
       if (network) {
         const types = [];
-
         if (network.smeStatus === 'On') types.push({ label: 'SME', value: `${network.smeId}-SME` });
         if (network.giftingStatus === 'On') types.push({ label: 'Gifting', value: `${network.giftingId}-Gifting` });
         if (network.corporateStatus === 'On') types.push({ label: 'Corporate', value: `${network.corporateId}-Corporate` });
 
         setDataTypes(types);
-        setSelectedDataType(types[0]?.value || null); // Default to the first available data type
       }
     } else {
-      setDataTypes([]); // Reset data types if no network is selected
+      setDataTypes([]);
       setSelectedDataType(null);
     }
   }, [selectedNetwork, networks]);
 
-  const handleDataTypeChange = async (value) => {
-    setSelectedDataType(value);
-
-    // Extract original ID if needed for further processing
-    const [id, type] = value.split('-');
-    
-    try {
-      const response = await fetch(constants.url + 'fetch-data-plans.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ network: id }),
-      });
-
-      const responseJson = await response.json();
-      console.log(responseJson)
-      if (responseJson.status === 0) {
-        setPlans(responseJson.data); // Save fetched plans to state
-      } else {
-        console.log(responseJson)
-        Alert.alert('Error', 'Failed to fetch data plans');
+  useEffect(() => {
+    const handleDataTypeChange = async () => {
+      if (!selectedDataType) return;
+      
+      const [id, type] = selectedDataType.split('-');
+      try {
+        const response = await fetch(constants.url + 'fetch-data-plans.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ network: id }),
+        });
+        const responseJson = await response.json();
+        if (responseJson.status === 0) {
+          setPlans(responseJson.data);
+          const newFilteredPlans = responseJson.data.filter(plan => plan.type === type);
+          setFilteredPlans(newFilteredPlans);
+          setSelectedPlan(null);
+          console.log("Filtered Plans:", newFilteredPlans); // Log filtered plans for debugging
+        } else {
+          Alert.alert('Error', 'Failed to fetch data plans');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to fetch data plans ' + error);
       }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to fetch data plans ' + error);
+    };
+    handleDataTypeChange();
+  }, [selectedDataType]);
+
+  const handlePlanChange = (value) => {
+    console.log("Selected Plan ID:", value); // Log selected plan ID for debugging
+    setSelectedPlan(value);
+    const plan = filteredPlans.find((p) => p.planid === value);
+    if (plan) {
+      console.log("Selected Plan Price:", plan.userprice); // Log selected plan price for debugging
+      setAmount(plan.userprice.toString());
+    } else {
+      setAmount('');
     }
   };
 
@@ -99,7 +110,7 @@ export default function BuyDataScreen() {
       <Text>Select Data Type:</Text>
       <Picker
         selectedValue={selectedDataType}
-        onValueChange={handleDataTypeChange}
+        onValueChange={setSelectedDataType}
         enabled={dataTypes.length > 0}
       >
         <Picker.Item label="Select Data Type" value={null} />
@@ -108,11 +119,25 @@ export default function BuyDataScreen() {
         ))}
       </Picker>
 
+      <Text>Select Data Plan:</Text>
+      <Picker
+        selectedValue={selectedPlan}
+        onValueChange={handlePlanChange}
+        enabled={filteredPlans.length > 0}
+      >
+        <Picker.Item label="Select Data Plan" value={null} />
+        {filteredPlans.map((plan) => (
+          <Picker.Item key={plan.planid} label={`${plan.name} ${plan.type} - ${plan.userprice} (${plan.day} days)`} value={plan.planid} />
+        ))}
+      </Picker>
+
       <InputField
         label="Amount"
         placeholder="Enter amount"
+        value={amount}
         keyboardType="numeric"
-        onChangeText={setAmount}
+        onChangeText={(value) => setAmount(value)}
+        editable={false}
       />
 
       <PhoneInput
