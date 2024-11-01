@@ -23,7 +23,6 @@ export default function BuyDataScreen() {
       try {
         const response = await fetch(constants.url + 'fetch-networks.php');
         const json = await response.json();
-        console.log(json);
         if (json.status === 0) {
           setNetworks(json.data);
         } else {
@@ -44,20 +43,28 @@ export default function BuyDataScreen() {
       if (network) {
         const types = [];
 
-        if (network.smeStatus === 'On') types.push({ label: 'SME', value: network.smeId });
-        if (network.giftingStatus === 'On') types.push({ label: 'Gifting', value: network.giftingId });
-        if (network.corporateStatus === 'On') types.push({ label: 'Corporate', value: network.corporateId });
+        if (network.smeStatus === 'On') types.push({ label: 'SME', value: `${network.smeId}-SME` });
+        if (network.giftingStatus === 'On') types.push({ label: 'Gifting', value: `${network.giftingId}-Gifting` });
+        if (network.corporateStatus === 'On') types.push({ label: 'Corporate', value: `${network.corporateId}-Corporate` });
 
         setDataTypes(types);
         setSelectedDataType(types[0]?.value || null); // Default to the first available data type
-        console.log(network);
-        console.log(dataTypes);
       }
     } else {
       setDataTypes([]); // Reset data types if no network is selected
       setSelectedDataType(null);
     }
-  }, [selectedNetwork]);
+  }, [selectedNetwork, networks]);
+
+  const handleDataTypeChange = (value) => {
+    setSelectedDataType(value);
+
+    // Extract original ID if needed for further processing
+    const [id, type] = value.split('-');
+    console.log('Selected ID:', id); // For further processing based on ID
+    console.log('Selected Type:', type);
+    console.log(value)
+  };
 
   const handleProceed = () => {
     setLoading(true);
@@ -73,7 +80,7 @@ export default function BuyDataScreen() {
       <Text>Select Data Type:</Text>
       <Picker
         selectedValue={selectedDataType}
-        onValueChange={(value) => setSelectedDataType(value)}
+        onValueChange={handleDataTypeChange}
         enabled={dataTypes.length > 0}
       >
         <Picker.Item label="Select Data Type" value={null} />
