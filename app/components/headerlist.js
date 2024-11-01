@@ -13,7 +13,7 @@ const HeaderList = () => {
       <View style={styles.header_list_wrapper}>
         <View style={styles.header_item}>
           <TouchableOpacity
-            onPress={() => router.push("screens/home/buydata")}
+            onPress={() => router.push("screens/home/airtime")}
             style={styles.header_list}
           >
             <Image
@@ -29,6 +29,10 @@ const HeaderList = () => {
         </View>
         <View style={styles.header_item}>
           <View style={styles.header_list}>
+          <TouchableOpacity
+            onPress={() => router.push("screens/home/buydata")}
+            style={styles.header_list}
+          >
             <Image
               source={require("../../assets/data.jpg")}
               style={{
@@ -37,6 +41,7 @@ const HeaderList = () => {
                 resizeMode: "contain",
               }}
             />
+            </TouchableOpacity>
           </View>
           <Text style={{ color: "black" }}>Data</Text>
         </View>

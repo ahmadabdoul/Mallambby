@@ -1,7 +1,7 @@
 import { CheckBox } from '@rneui/themed';
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colorsVar } from '../app/utils/colors';
+import { colorsVar } from '../utils/colors';
 
 export const Checkbox = ({ label, isChecked, onToggle }) => (
     <View style={styles.checkboxContainer}>

@@ -1,6 +1,7 @@
 import { Button, ButtonGroup } from '@rneui/themed';
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { colorsVar } from '../utils/colors';
 
 export const CustomButton = ({ title, onPress, loading }) => (
     <Button onPress={onPress} buttonStyle={styles.button} loading={loading} title={title} />
@@ -10,7 +11,7 @@ export const CustomButton = ({ title, onPress, loading }) => (
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#FF007F',
+    backgroundColor: colorsVar.primaryColor,
     padding: 15,
     borderRadius: 30,
     alignItems: 'center',
