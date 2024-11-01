@@ -16,6 +16,7 @@ export default function BuyDataScreen() {
   const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
+  const [plans, setPlans] = useState([]); // New state to store fetched plans
 
   useEffect(() => {
     // Fetch network data from API
@@ -56,14 +57,32 @@ export default function BuyDataScreen() {
     }
   }, [selectedNetwork, networks]);
 
-  const handleDataTypeChange = (value) => {
+  const handleDataTypeChange = async (value) => {
     setSelectedDataType(value);
 
     // Extract original ID if needed for further processing
     const [id, type] = value.split('-');
-    console.log('Selected ID:', id); // For further processing based on ID
-    console.log('Selected Type:', type);
-    console.log(value)
+    
+    try {
+      const response = await fetch(constants.url + 'fetch-data-plans.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ network: id }),
+      });
+
+      const responseJson = await response.json();
+      console.log(responseJson)
+      if (responseJson.status === 0) {
+        setPlans(responseJson.data); // Save fetched plans to state
+      } else {
+        console.log(responseJson)
+        Alert.alert('Error', 'Failed to fetch data plans');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch data plans ' + error);
+    }
   };
 
   const handleProceed = () => {
@@ -102,7 +121,7 @@ export default function BuyDataScreen() {
         keyboardType="phone-pad"
         onChangeText={setPhoneNumber}
       />
-     
+
       <CustomButton title="Proceed" loading={loading} onPress={handleProceed} />
     </View>
   );
