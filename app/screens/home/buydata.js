@@ -7,6 +7,10 @@ import { InputField } from '../../components/InputField';
 import { CustomButton } from '../../components/CustomButton';
 import { PhoneInput } from '../../components/PhoneInput';
 import constants from '../../utils/constants';
+import { CheckBox } from '@rneui/themed';
+import { colorsVar } from '../../utils/colors';
+import { getAuth } from '../../utils/util';
+import axios from 'axios';
 
 export default function BuyDataScreen() {
   const [networks, setNetworks] = useState([]);
@@ -19,6 +23,7 @@ export default function BuyDataScreen() {
   const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
+  const [ported, setPorted] = useState(false);
 
   useEffect(() => {
     const fetchNetworks = async () => {
@@ -31,7 +36,7 @@ export default function BuyDataScreen() {
           Alert.alert('Error', 'Failed to fetch networks');
         }
       } catch (error) {
-        Alert.alert('Error', 'Network request failed');
+        Alert.alert('Error', 'Network request failed ' + error);
       }
     };
     fetchNetworks();
@@ -96,11 +101,58 @@ export default function BuyDataScreen() {
     }
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     setLoading(true);
-    // Perform proceed action here
+  
+    const user = await getAuth();
+    //console.log(networks)
+    // Find the network object that matches the selectedNetwork
+    const networkObject = networks.find((network) => network.network === selectedNetwork);
+    const networkId = networkObject ? networkObject.networkid : null; // Retrieve the networkId
+  
+    if (!networkId) {
+      Alert.alert("Error", "Network ID not found for the selected network.");
+      setLoading(false);
+      return;
+    }
+  
+    const data = JSON.stringify({ 
+      email: user.email,
+      mobile_number: phoneNumber,
+      network: selectedNetwork,
+      plan: selectedPlan,
+      ported: ported,
+      amount: amount,
+      networkId: networkId // Add networkId to the data object
+    });
+  
+    console.log(data);
+  
+    try {
+      const response = await axios.post(constants.url + "buy-data.php", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      const responseJson = response.data;
+      console.log(responseJson);
+  
+      if (responseJson.status === 0) {
+        Alert.alert("Success", responseJson.message);
+        setLoading(false);
+        //router.replace("screens");
+      } else {
+        setLoading(false);
+        Alert.alert("Failed", responseJson.message);
+      }
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
     setLoading(false);
   };
+  
 
   return (
     <View style={styles.container}>
@@ -138,6 +190,7 @@ export default function BuyDataScreen() {
         keyboardType="numeric"
         onChangeText={(value) => setAmount(value)}
         editable={false}
+        
       />
 
       <PhoneInput
@@ -146,6 +199,8 @@ export default function BuyDataScreen() {
         keyboardType="phone-pad"
         onChangeText={setPhoneNumber}
       />
+
+      <CheckBox checked={ported} checkedColor={colorsVar.primaryColor} title='Disable Number Validator' onIconPress={()=>setPorted(!ported)} />
 
       <CustomButton title="Proceed" loading={loading} onPress={handleProceed} />
     </View>

@@ -6,6 +6,15 @@ import { colorsVar } from '../utils/colors';
 export const PhoneInput = ({ label, placeholder, keyboardType = 'phone-pad', onChangeText }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
 
+  const sanitizePhoneNumber = (number) => {
+    // Replace +234 with 0 if it exists at the beginning
+    if (number.startsWith('+234')) {
+      number = '0' + number.slice(4);
+    }
+    // Remove any spaces
+    return number.replace(/\s+/g, '');
+  };
+
   const openContacts = async () => {
     try {
       // Request permission to access contacts (only needed on Android)
@@ -15,14 +24,15 @@ export const PhoneInput = ({ label, placeholder, keyboardType = 'phone-pad', onC
         const contact = await Contacts.presentContactPickerAsync({
           fields: [Contacts.Fields.PhoneNumbers],
         });
-        console.log(contact)
+        console.log(contact);
         if (contact && contact.phoneNumbers && contact.phoneNumbers.length > 0) {
           // Get the first available phone number for the selected contact
           const selectedNumber = contact.phoneNumbers[0].number;
-  
+          // Sanitize the phone number
+          const sanitizedNumber = sanitizePhoneNumber(selectedNumber);
           // Update phone number state and pass it to the parent component's state if onChangeText is provided
-          setPhoneNumber(selectedNumber);
-          onChangeText && onChangeText(selectedNumber);
+          setPhoneNumber(sanitizedNumber);
+          onChangeText && onChangeText(sanitizedNumber);
         } else {
           Alert.alert('Selected contact has no phone numbers');
         }
@@ -34,7 +44,7 @@ export const PhoneInput = ({ label, placeholder, keyboardType = 'phone-pad', onC
       Alert.alert('Failed to open contacts');
     }
   };
-  
+
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.label}>{label}</Text>
@@ -44,8 +54,9 @@ export const PhoneInput = ({ label, placeholder, keyboardType = 'phone-pad', onC
           placeholder={placeholder}
           keyboardType={keyboardType}
           onChangeText={(text) => {
-            setPhoneNumber(text);
-            onChangeText && onChangeText(text);
+            const sanitizedText = sanitizePhoneNumber(text);
+            setPhoneNumber(sanitizedText);
+            onChangeText && onChangeText(sanitizedText);
           }}
           value={phoneNumber}
         />
