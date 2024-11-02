@@ -8,30 +8,23 @@ export const PhoneInput = ({ label, placeholder, keyboardType = 'phone-pad', onC
 
   const openContacts = async () => {
     try {
-      // Request permission to access contacts
+      // Request permission to access contacts (only needed on Android)
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === 'granted') {
-        // Retrieve contacts with phone numbers
-        const { data } = await Contacts.getContactsAsync({
+        // Open the native contact picker to select a single contact
+        const contact = await Contacts.presentContactPickerAsync({
           fields: [Contacts.Fields.PhoneNumbers],
         });
-
-        if (data.length > 0) {
-          // Filter contacts with at least one phone number
-          const contactsWithNumbers = data.filter(contact => contact.phoneNumbers && contact.phoneNumbers.length > 0);
-
-          if (contactsWithNumbers.length > 0) {
-            const firstContact = contactsWithNumbers[0];
-            const selectedNumber = firstContact.phoneNumbers[0].number;
-
-            // Update phone number state and parent component's state (if onChangeText is provided)
-            setPhoneNumber(selectedNumber);
-            onChangeText && onChangeText(selectedNumber);
-          } else {
-            Alert.alert('No contacts found with phone numbers');
-          }
+        console.log(contact)
+        if (contact && contact.phoneNumbers && contact.phoneNumbers.length > 0) {
+          // Get the first available phone number for the selected contact
+          const selectedNumber = contact.phoneNumbers[0].number;
+  
+          // Update phone number state and pass it to the parent component's state if onChangeText is provided
+          setPhoneNumber(selectedNumber);
+          onChangeText && onChangeText(selectedNumber);
         } else {
-          Alert.alert('No contacts found');
+          Alert.alert('Selected contact has no phone numbers');
         }
       } else {
         Alert.alert('Permission to access contacts was denied');
@@ -41,7 +34,7 @@ export const PhoneInput = ({ label, placeholder, keyboardType = 'phone-pad', onC
       Alert.alert('Failed to open contacts');
     }
   };
-
+  
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.label}>{label}</Text>
