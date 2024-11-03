@@ -1,35 +1,134 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Alert, Text } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 import { NetworkSelector } from '../../components/NetworkSelector';
 import { InputField } from '../../components/InputField';
-
 import { CustomButton } from '../../components/CustomButton';
 import { PhoneInput } from '../../components/PhoneInput';
+import constants from '../../utils/constants';
+import { colorsVar } from '../../utils/colors';
+import { getAuth } from '../../utils/util';
+import axios from 'axios';
+import { useRouter } from 'expo-router';
+import { CheckBox } from '@rneui/themed';
 
 export default function BuyAirtimeScreen() {
+  const [networks, setNetworks] = useState([]);
   const [selectedNetwork, setSelectedNetwork] = useState(null);
+  const [airtimeType, setAirtimeType] = useState('VTU');
   const [amount, setAmount] = useState('');
+  const [discountedAmount, setDiscountedAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
-  
+  const [ported, setPorted] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchNetworks = async () => {
+      try {
+        const response = await fetch(constants.url + 'fetch-networks.php');
+        const json = await response.json();
+        if (json.status === 0) {
+          setNetworks(json.data);
+        } else {
+          Alert.alert('Error', 'Failed to fetch networks');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Network request failed ' + error);
+      }
+    };
+    fetchNetworks();
+  }, []);
+
+  useEffect(() => {
+    // Calculate the discounted amount (1% discount)
+    const discount = amount ? (parseFloat(amount) * 0.01).toFixed(2) : '0';
+    setDiscountedAmount((parseFloat(amount) - parseFloat(discount)).toFixed(2));
+  }, [amount]);
+
+  const handleProceed = async () => {
+    setLoading(true);
+
+    const user = await getAuth();
+    const networkObject = networks.find((network) => network.network === selectedNetwork);
+    const networkId = networkObject ? networkObject.networkid : null;
+
+    if (!networkId) {
+      Alert.alert("Error", "Network ID not found for the selected network.");
+      setLoading(false);
+      return;
+    }
+
+    const data = JSON.stringify({ 
+      email: user.email,
+      mobile_number: phoneNumber,
+      network: selectedNetwork,
+      type: airtimeType,
+      amount: amount,
+      ported: ported,
+      discounted: discountedAmount,
+      networkId: networkId
+    });
+
+    console.log(data)
+    try {
+      const response = await axios.post(constants.url + "buy-airtime.php", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const responseJson = response.data;
+      console.log(responseJson.data)
+      if (responseJson.status === 0) {
+        setLoading(false);
+        router.replace({ pathname: "screens/home/success", params: { message: responseJson.message } });
+      } else {
+        setLoading(false);
+        Alert.alert("Failed", responseJson.message);
+      }
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+    setLoading(false);
+  };
+
   return (
     <View style={styles.container}>
+      <Text>Select Network:</Text>
       <NetworkSelector onSelect={setSelectedNetwork} />
+
+      <Text>Select Airtime Type:</Text>
+      <Picker
+        selectedValue={airtimeType}
+        onValueChange={setAirtimeType}
+      >
+        <Picker.Item label="Select Airtime Type" value="" />
+        <Picker.Item label="VTU" value="VTU" />
+        <Picker.Item label="Share And Sell" value="Share And Sell" />
+      </Picker>
+
       <InputField
         label="Amount"
         placeholder="Enter amount"
+        value={amount}
         keyboardType="numeric"
-        onChangeText={setAmount}
+        onChangeText={(value) => setAmount(value)}
       />
+
+      <Text>Amount to Pay (After Discount): {discountedAmount}</Text>
+
       <PhoneInput
         label="Phone Number"
-        placeholder="Enter one mobile number per line or separate with commas"
+        placeholder="Enter phone number"
         keyboardType="phone-pad"
         onChangeText={setPhoneNumber}
       />
-     
-      <CustomButton title="Proceed" loading={loading} onPress={() => setLoading(true)} />
+       <CheckBox checked={ported} checkedColor={colorsVar.primaryColor} title='Disable Number Validator' onIconPress={()=>setPorted(!ported)} />
+
+      <CustomButton title="Proceed" loading={loading} onPress={handleProceed} />
     </View>
   );
 }

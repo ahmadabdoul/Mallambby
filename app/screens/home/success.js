@@ -8,11 +8,12 @@ import {
 import React from "react";
 
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { colorsVar } from "../../utils/colors";
 
 const success = () => {
   const router = useRouter();
+  const params = useLocalSearchParams()
   return (
     <View style={styles.MainContainer}>
       <View
@@ -28,7 +29,7 @@ const success = () => {
           size={80}
           color={colorsVar.primaryColor}
         ></Ionicons>
-        <Text style={{ color: "black" }}>Payment Confirmed!</Text>
+        <Text style={{ color: "black" }}>{params.message}</Text>
       </View>
       <TouchableOpacity
         onPress={() => {
@@ -50,7 +51,7 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === "ios" ? 20 : 20,
   },
   addButton: {
-    backgroundColor: colorsVar.secondary,
+    backgroundColor: colorsVar.primaryColor,
     paddingVertical: 15,
     borderRadius: 9,
     marginBottom: 20,

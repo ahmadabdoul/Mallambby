@@ -11,6 +11,7 @@ import { CheckBox } from '@rneui/themed';
 import { colorsVar } from '../../utils/colors';
 import { getAuth } from '../../utils/util';
 import axios from 'axios';
+import { useRouter } from 'expo-router';
 
 export default function BuyDataScreen() {
   const [networks, setNetworks] = useState([]);
@@ -24,6 +25,7 @@ export default function BuyDataScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [ported, setPorted] = useState(false);
+  const router = useRouter()
 
   useEffect(() => {
     const fetchNetworks = async () => {
@@ -31,6 +33,7 @@ export default function BuyDataScreen() {
         const response = await fetch(constants.url + 'fetch-networks.php');
         const json = await response.json();
         if (json.status === 0) {
+          console.log(json.data)
           setNetworks(json.data);
         } else {
           Alert.alert('Error', 'Failed to fetch networks');
@@ -139,9 +142,8 @@ export default function BuyDataScreen() {
       console.log(responseJson);
   
       if (responseJson.status === 0) {
-        Alert.alert("Success", responseJson.message);
         setLoading(false);
-        //router.replace("screens");
+        router.replace({pathname: "screens/home/success", params: {message: responseJson.message}})
       } else {
         setLoading(false);
         Alert.alert("Failed", responseJson.message);
