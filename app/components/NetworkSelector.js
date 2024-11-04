@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const networks = [
-  { name: 'MTN', icon: require('../../assets/mtn.png') },
-  { name: 'GLO', icon: require('../../assets/glo.png') },
-  { name: 'AIRTEL', icon: require('../../assets/airtel.png') },
-  { name: '9MOBILE', icon: require('../../assets/9mobile.png') },
+  { name: 'MTN', icon: 'https://www.malambby.com.ng/assets/images/icons/mtn.png' },
+  { name: 'GLO', icon: 'https://www.malambby.com.ng/assets/images/icons/glo.png' },
+  { name: 'AIRTEL', icon: 'https://www.malambby.com.ng/assets/images/icons/airtel.png' },
+  { name: '9MOBILE', icon: 'https://www.malambby.com.ng/assets/images/icons/9mobile.png' },
 ];
 
 export const NetworkSelector = ({ onSelect }) => {
@@ -24,7 +24,11 @@ export const NetworkSelector = ({ onSelect }) => {
             styles.networkItem,
             selectedNetwork === network.name && styles.selectedNetworkItem
           ]}>
-            <Image source={network.icon} style={styles.networkIcon} />
+            <Image 
+              source={{ uri: network.icon }} 
+              style={styles.networkIcon} 
+              resizeMode="contain" 
+            />
             <Text>{network.name}</Text>
           </View>
         </TouchableOpacity>

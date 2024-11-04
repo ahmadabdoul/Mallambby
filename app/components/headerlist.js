@@ -60,7 +60,7 @@ const HeaderList = () => {
         </View>
         <TouchableOpacity
           style={styles.header_item}
-          onPress={() => router.push("screens/home/electricity")}
+          onPress={() => console.log('coming soon')}
         >
           <View style={styles.header_list}>
             <Image

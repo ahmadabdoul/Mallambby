@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import React, { useState, useEffect } from "react";
 import constants from "../utils/constants";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import { Ionicons, Entypo, AntDesign } from "@expo/vector-icons";
 import { colorsVar } from "../utils/colors";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
@@ -38,7 +38,22 @@ export default () => {
             ),
           }}
         />
+        <Tabs.Screen
+          name="support"
+          options={{
+            headerShown: false,
+            tabBarLabel: "Support",
+            tabBarIcon: ({ focused, size }) => (
+              <AntDesign
+                name="customerservice"
+                size={size}
+                color={focused ? colorsVar.primaryColor : "#ccc"}
+              />
+            ),
+          }}
+        />
       </Tabs>
+      
     </BottomSheetModalProvider>
   );
 };
