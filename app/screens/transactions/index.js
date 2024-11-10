@@ -16,47 +16,51 @@ const Transactions = () => {
     fetchTransactions(); // Fetch transactions on component mount
   }, []);
 
-  const fetchTransactions = async (isRefreshing = false) => {
-    try {
-      if (!isRefreshing) setLoading(true); // Show the main loader only if not refreshing
-      const auth = await getAuth(); // Fetch user info
-      const userEmail = auth.email;
+const fetchTransactions = async (isRefreshing = false) => {
+  try {
+    if (!isRefreshing) setLoading(true); // Show the main loader only if not refreshing
+    const auth = await getAuth(); // Fetch user info
+    const userEmail = auth.email;
 
-      const data = JSON.stringify({ email: userEmail });
-      const response = await axios.post(
-        constants.url + "fetch-transactions.php", // Modify this URL according to your backend setup
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    const data = JSON.stringify({ email: userEmail });
+    const response = await axios.post(
+      constants.url + "fetch-transactions.php", // Modify this URL according to your backend setup
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-      if (response.data.status === 0) {
-        if (response.data.transactions.length > 0) {
-          setTransactions(response.data.transactions);
-          // Initially show 1.5 screens worth of transactions
-          const initialVisibleCount = Math.ceil(response.data.transactions.length * 1.5);
-          setVisibleTransactions(response.data.transactions.slice(0, initialVisibleCount));
-        } else {
-          // No transactions, set the message
-          setMessage("No transactions yet");
-        }
+    if (response.data.status === 0) {
+      if (response.data.transactions.length > 0) {
+        // Sort transactions by date, assuming `date` is in ISO format or a comparable format
+        const sortedTransactions = response.data.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        setTransactions(sortedTransactions);
+
+        // Initially show 1.5 screens worth of transactions
+        const initialVisibleCount = Math.ceil(sortedTransactions.length * 1.5);
+        setVisibleTransactions(sortedTransactions.slice(0, initialVisibleCount));
       } else {
-        // If the response status isn't 0, display the error message from the API
-        setMessage(response.data.message);
+        // No transactions, set the message
+        setMessage("No transactions yet");
       }
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      setMessage("Error loading transactions");
-    } finally {
-      setLoading(false);
-      if (isRefreshing) {
-        setRefreshing(false); // Stop the refreshing loader
-      }
+    } else {
+      // If the response status isn't 0, display the error message from the API
+      setMessage(response.data.message);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
+    setMessage("Error loading transactions");
+  } finally {
+    setLoading(false);
+    if (isRefreshing) {
+      setRefreshing(false); // Stop the refreshing loader
+    }
+  }
+};
 
   const loadMoreTransactions = () => {
     // Load more transactions when the user scrolls close to the end
