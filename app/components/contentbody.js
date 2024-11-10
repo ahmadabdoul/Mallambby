@@ -24,7 +24,6 @@ const ContentBody = () => {
     fetchUserData();
   }, []);
 
-  // Fetch transactions from the API
   const fetchTransactions = async (userEmail) => {
     try {
       setLoading(true);
@@ -39,15 +38,19 @@ const ContentBody = () => {
           },
         }
       );
-
+  
       if (response.data.status === 0) {
         // If there are transactions, sort and show them
         if (response.data.transactions.length > 0) {
-          console.log(response.data.transactions)
+          console.log(response.data.transactions);
           const sortedTransactions = response.data.transactions.sort(
             (a, b) => new Date(b.date) - new Date(a.date)
           );
-          setTransactions(sortedTransactions); // Set all transactions, remove limit to display all
+  
+          // Limit to the first 6 transactions
+          const limitedTransactions = sortedTransactions.slice(0, 6);
+  
+          setTransactions(limitedTransactions); // Set only the first 6 transactions
         } else {
           // Set the message if there are no transactions
           setMessage("No transactions yet");
@@ -63,7 +66,7 @@ const ContentBody = () => {
       setLoading(false);
     }
   };
-
+  
   // Function to handle pull-to-refresh
   const handleRefresh = async () => {
     setRefreshing(true); // Set refreshing to true to show loading indicator
