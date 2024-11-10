@@ -1,12 +1,32 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import React from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser"; 
 
 const HeaderList = () => {
   const router = useRouter();
-  const topup = async () => {
-    return topup();
+  
+  // Function to handle the confirmation and website redirect
+  const handleComingSoon = (serviceName) => {
+    Alert.alert(
+      `${serviceName} Coming Soon`,
+      `This service will be available soon on the app, but it's available on the website. In the meantime, you can visit our website to perform this action.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Go to Website",
+          onPress: async () => {
+            await WebBrowser.openBrowserAsync('https://malambby.com.ng/mobile');
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
+  
 
   return (
     <>
@@ -27,8 +47,8 @@ const HeaderList = () => {
           </TouchableOpacity>
           <Text style={{ color: "black" }}>Airtime</Text>
         </View>
+
         <View style={styles.header_item}>
-          <View style={styles.header_list}>
           <TouchableOpacity
             onPress={() => router.push("screens/home/buydata")}
             style={styles.header_list}
@@ -41,12 +61,15 @@ const HeaderList = () => {
                 resizeMode: "contain",
               }}
             />
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
           <Text style={{ color: "black" }}>Data</Text>
         </View>
+
         <View style={styles.header_item}>
-          <View style={styles.header_list}>
+          <TouchableOpacity
+            onPress={() => handleComingSoon("Cable TV")}
+            style={styles.header_list}
+          >
             <Image
               source={require("../../assets/tv.jpg")}
               style={{
@@ -55,12 +78,13 @@ const HeaderList = () => {
                 resizeMode: "contain",
               }}
             />
-          </View>
-          <Text style={{ color: "black" }}>Cable Tv</Text>
+          </TouchableOpacity>
+          <Text style={{ color: "black" }}>Cable TV</Text>
         </View>
+
         <TouchableOpacity
           style={styles.header_item}
-          onPress={() => console.log('coming soon')}
+          onPress={() => handleComingSoon("Electricity")}
         >
           <View style={styles.header_list}>
             <Image
@@ -85,22 +109,8 @@ const HeaderList = () => {
         }}
       >
         <View style={styles.header_item}>
-          {/* <TouchableOpacity
-            onPress={() => router.push("screens/home/buydata")}
-            style={styles.header_list}
-          >
-            <Image
-              source={require("../../assets/airtime.jpg")}
-              style={{
-                width: 50,
-                height: 50,
-                resizeMode: "contain",
-              }}
-            />
-          </TouchableOpacity>
-          <Text style={{ color: "black" }}>Airtime</Text> */}
+          {/* Placeholder for additional items if needed */}
         </View>
-        
       </View>
     </>
   );
