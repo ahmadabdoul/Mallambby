@@ -12,6 +12,7 @@ import { colorsVar } from '../../utils/colors';
 import { getAuth } from '../../utils/util';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+import { TransactionPinInput } from '../../components/TransactionPinInput';
 
 export default function BuyDataScreen() {
   const [networks, setNetworks] = useState([]);
@@ -25,6 +26,8 @@ export default function BuyDataScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [ported, setPorted] = useState(false);
+  const [showPinInput, setShowPinInput] = useState(false);
+
   const router = useRouter()
 
   useEffect(() => {
@@ -105,56 +108,51 @@ export default function BuyDataScreen() {
   };
 
   const handleProceed = async () => {
+    setShowPinInput(true); // Show the PIN input before proceeding
+  };
+
+  const handleVerifyPinSuccess = async () => {
+    setShowPinInput(false)
     setLoading(true);
   
     const user = await getAuth();
-    //console.log(networks)
-    // Find the network object that matches the selectedNetwork
     const networkObject = networks.find((network) => network.network === selectedNetwork);
-    const networkId = networkObject ? networkObject.networkid : null; // Retrieve the networkId
-  
+    const networkId = networkObject ? networkObject.networkid : null;
+
     if (!networkId) {
       Alert.alert("Error", "Network ID not found for the selected network.");
       setLoading(false);
       return;
     }
-  
+
     const data = JSON.stringify({ 
       email: user.email,
       mobile_number: phoneNumber,
       network: selectedNetwork,
       plan: selectedPlan,
-      ported: ported,
       amount: amount,
-      networkId: networkId // Add networkId to the data object
+      networkId: networkId
     });
-  
-    console.log(data);
-  
+
     try {
       const response = await axios.post(constants.url + "buy-data.php", data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
-  
       const responseJson = response.data;
-      console.log(responseJson);
-  
+
       if (responseJson.status === 0) {
         setLoading(false);
-        router.replace({pathname: "screens/home/success", params: {message: responseJson.message}})
+        router.replace({ pathname: "screens/home/success", params: { message: responseJson.message } });
       } else {
         setLoading(false);
         Alert.alert("Failed", responseJson.message);
       }
     } catch (error) {
-      console.error(error);
+      Alert.alert("Error", "Network request failed: " + error);
       setLoading(false);
     }
-    setLoading(false);
   };
-  
+
 
   return (
     <View style={styles.container}>
@@ -205,6 +203,13 @@ export default function BuyDataScreen() {
       <CheckBox checked={ported} checkedColor={colorsVar.primaryColor} title='Disable Number Validator' onIconPress={()=>setPorted(!ported)} />
 
       <CustomButton title="Proceed" loading={loading} onPress={handleProceed} />
+      {showPinInput && (
+        <TransactionPinInput
+          visible={showPinInput}
+          onVerify={handleVerifyPinSuccess} // Callback on successful verification
+          onClose={() => setShowPinInput(false)} // Callback to close the PIN input
+        />
+      )}
     </View>
   );
 }

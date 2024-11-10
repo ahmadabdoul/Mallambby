@@ -12,16 +12,18 @@ import { getAuth } from '../../utils/util';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { CheckBox } from '@rneui/themed';
+import { TransactionPinInput } from '../../components/TransactionPinInput'; // Import the PIN input component
 
 export default function BuyAirtimeScreen() {
   const [networks, setNetworks] = useState([]);
   const [selectedNetwork, setSelectedNetwork] = useState(null);
   const [airtimeType, setAirtimeType] = useState('VTU');
   const [amount, setAmount] = useState('');
-  const [discountedAmount, setDiscountedAmount] = useState('');
+  const [discountedAmount, setDiscountedAmount] = useState(''); 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [ported, setPorted] = useState(false);
+  const [showPinInput, setShowPinInput] = useState(false); // New state for showing PIN input
   const router = useRouter();
 
   useEffect(() => {
@@ -48,6 +50,11 @@ export default function BuyAirtimeScreen() {
   }, [amount]);
 
   const handleProceed = async () => {
+    setShowPinInput(true); // Show the PIN input when Proceed is clicked
+  };
+
+  const handleVerifyPinSuccess = async () => {
+    setShowPinInput(false); // Hide PIN input after verification
     setLoading(true);
 
     const user = await getAuth();
@@ -60,7 +67,7 @@ export default function BuyAirtimeScreen() {
       return;
     }
 
-    const data = JSON.stringify({ 
+    const data = JSON.stringify({
       email: user.email,
       mobile_number: phoneNumber,
       network: selectedNetwork,
@@ -71,7 +78,6 @@ export default function BuyAirtimeScreen() {
       networkId: networkId
     });
 
-    console.log(data)
     try {
       const response = await axios.post(constants.url + "buy-airtime.php", data, {
         headers: {
@@ -80,7 +86,6 @@ export default function BuyAirtimeScreen() {
       });
 
       const responseJson = response.data;
-      console.log(responseJson.data)
       if (responseJson.status === 0) {
         setLoading(false);
         router.replace({ pathname: "screens/home/success", params: { message: responseJson.message } });
@@ -126,9 +131,19 @@ export default function BuyAirtimeScreen() {
         keyboardType="phone-pad"
         onChangeText={setPhoneNumber}
       />
-       <CheckBox checked={ported} checkedColor={colorsVar.primaryColor} title='Disable Number Validator' onIconPress={()=>setPorted(!ported)} />
+      
+      <CheckBox checked={ported} checkedColor={colorsVar.primaryColor} title='Disable Number Validator' onIconPress={() => setPorted(!ported)} />
 
       <CustomButton title="Proceed" loading={loading} onPress={handleProceed} />
+      
+      {/* Show the PIN input if showPinInput is true */}
+      {showPinInput && (
+        <TransactionPinInput
+          visible={showPinInput}
+          onVerify={handleVerifyPinSuccess} // Callback after successful PIN verification
+          onClose={() => setShowPinInput(false)} // Close the PIN input if cancelled
+        />
+      )}
     </View>
   );
 }
