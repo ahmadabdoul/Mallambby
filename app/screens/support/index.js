@@ -1,41 +1,55 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native';
-import { colorsVar } from '../../utils/colors';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { FontAwesome, Feather } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
 
-export default function SupportScreen() {
-  const contactSupport = (type) => {
-    let url;
-    switch (type) {
-      case 'whatsapp':
-        url = 'https://wa.me/1234567890'; // Replace with actual WhatsApp number
-        break;
-      case 'email':
-        url = 'mailto:support@example.com'; // Replace with actual support email
-        break;
-      case 'phone':
-        url = 'tel:+1234567890'; // Replace with actual support phone number
-        break;
-      default:
-        return;
-    }
-    
-    Linking.openURL(url).catch(() => {
-      Alert.alert("Error", "Unable to open the link. Please try again later.");
-    });
+export default function HelpCenterScreen() {
+  // Function to open URLs in the browser
+  const openURL = async (url) => {
+    await WebBrowser.openBrowserAsync(url);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Contact Support</Text>
-      <TouchableOpacity style={styles.button} onPress={() => contactSupport('whatsapp')}>
-        <Text style={styles.buttonText}>WhatsApp Support</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => openURL('https://wa.me/+2348062278474')} // WhatsApp URL
+      >
+        <FontAwesome name="whatsapp" size={24} color="black" />
+        <Text style={styles.buttonText}>WhatsApp</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => contactSupport('email')}>
-        <Text style={styles.buttonText}>Email Support</Text>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => openURL('https://malambby.com.ng')} // Website URL
+      >
+        <Feather name="globe" size={24} color="black" />
+        <Text style={styles.buttonText}>Website</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => contactSupport('phone')}>
-        <Text style={styles.buttonText}>Phone Support</Text>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => console.log('facebook')} // Facebook URL
+      >
+        <FontAwesome name="facebook" size={24} color="black" />
+        <Text style={styles.buttonText}>Facebook</Text>
       </TouchableOpacity>
+
+      {/* <TouchableOpacity
+        style={styles.button}
+        onPress={() => openURL('https://twitter.com/your-profile')} // Twitter URL
+      >
+        <FontAwesome name="twitter" size={24} color="black" />
+        <Text style={styles.buttonText}>Twitter</Text>
+      </TouchableOpacity> */}
+
+      {/* <TouchableOpacity
+        style={styles.button}
+        onPress={() => openURL('https://instagram.com/your-profile')} // Instagram URL
+      >
+        <FontAwesome name="instagram" size={24} color="black" />
+        <Text style={styles.buttonText}>Instagram</Text>
+      </TouchableOpacity> */}
     </View>
   );
 }
@@ -43,29 +57,22 @@ export default function SupportScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colorsVar.primaryColor,
-    marginBottom: 20,
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 24,
   },
   button: {
-    backgroundColor: colorsVar.primaryColor,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginVertical: 10,
-    width: '80%',
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F7F7F7',
+    borderRadius: 10,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    marginBottom: 10,
   },
   buttonText: {
-    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    marginLeft: 20,
+    color: 'black',
   },
 });

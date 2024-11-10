@@ -49,6 +49,22 @@ export default () => {
                 size={size}
                 color={focused ? colorsVar.primaryColor : "#ccc"}
               />
+              
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="logout"
+          options={{
+            headerShown: false,
+            tabBarLabel: "Logout",
+            tabBarIcon: ({ focused, size }) => (
+              <Ionicons
+                name="exit-outline"
+                size={size}
+                color={focused ? colorsVar.primaryColor : "#ccc"}
+              />
+              
             ),
           }}
         />

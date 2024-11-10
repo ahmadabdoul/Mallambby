@@ -131,8 +131,10 @@ export default function BuyDataScreen() {
       network: selectedNetwork,
       plan: selectedPlan,
       amount: amount,
-      networkId: networkId
+      networkId: networkId,
+      ported: ported
     });
+    console.log(data)
 
     try {
       const response = await axios.post(constants.url + "buy-data.php", data, {
