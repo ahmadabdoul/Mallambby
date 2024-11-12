@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, Text } from 'react-native';
+import { View, StyleSheet, Alert, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 import { NetworkSelector } from '../../components/NetworkSelector';
@@ -19,8 +19,8 @@ export default function BuyDataScreen() {
   const [selectedNetwork, setSelectedNetwork] = useState(null);
   const [dataTypes, setDataTypes] = useState([]);
   const [selectedDataType, setSelectedDataType] = useState(null);
-  const [plans, setPlans] = useState([]); 
-  const [filteredPlans, setFilteredPlans] = useState([]); 
+  const [plans, setPlans] = useState([]);
+  const [filteredPlans, setFilteredPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -28,7 +28,7 @@ export default function BuyDataScreen() {
   const [ported, setPorted] = useState(false);
   const [showPinInput, setShowPinInput] = useState(false);
 
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchNetworks = async () => {
@@ -36,13 +36,12 @@ export default function BuyDataScreen() {
         const response = await fetch(constants.url + 'fetch-networks.php');
         const json = await response.json();
         if (json.status === 0) {
-          console.log(json.data)
           setNetworks(json.data);
         } else {
           Alert.alert('Error', 'Failed to fetch networks');
         }
       } catch (error) {
-        Alert.alert('Error', 'Network request failed ' + error);
+        Alert.alert('Error', 'Network request failed: ' + error);
       }
     };
     fetchNetworks();
@@ -65,6 +64,31 @@ export default function BuyDataScreen() {
     }
   }, [selectedNetwork, networks]);
 
+  // Check data type availability
+  const checkDataTypeAvailability = () => {
+    if (selectedDataType && selectedNetwork) {
+      const [id, type] = selectedDataType.split('-');
+      const network = networks.find((item) => item.network === selectedNetwork);
+      if (network) {
+        const statusMap = {
+          SME: network.smeStatus,
+          Gifting: network.giftingStatus,
+          Corporate: network.corporateStatus,
+        };
+
+        if (statusMap[type] !== 'On') {
+          Alert.alert('Not Available', `The selected ${type} plan is currently unavailable. Please try a different data type.`);
+          setSelectedDataType(null);
+          return;
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkDataTypeAvailability();
+  }, [selectedDataType]);
+
   useEffect(() => {
     const handleDataTypeChange = async () => {
       if (!selectedDataType) return;
@@ -84,7 +108,6 @@ export default function BuyDataScreen() {
           const newFilteredPlans = responseJson.data.filter(plan => plan.type === type);
           setFilteredPlans(newFilteredPlans);
           setSelectedPlan(null);
-          console.log("Filtered Plans:", newFilteredPlans); // Log filtered plans for debugging
         } else {
           Alert.alert('Error', 'Failed to fetch data plans');
         }
@@ -96,23 +119,41 @@ export default function BuyDataScreen() {
   }, [selectedDataType]);
 
   const handlePlanChange = (value) => {
-    console.log("Selected Plan ID:", value); // Log selected plan ID for debugging
     setSelectedPlan(value);
     const plan = filteredPlans.find((p) => p.planid === value);
-    if (plan) {
-      console.log("Selected Plan Price:", plan.userprice); // Log selected plan price for debugging
-      setAmount(plan.userprice.toString());
-    } else {
-      setAmount('');
-    }
+    setAmount(plan ? plan.userprice.toString() : '');
   };
+  const areInputsValid = () => {
+    if (!selectedNetwork) {
+      Alert.alert('Error', 'Please select a network.');
+      return false;
+    }
+    if (!selectedDataType) {
+      Alert.alert('Error', 'Please select a data type.');
+      return false;
+    }
+    if (!selectedPlan) {
+      Alert.alert('Error', 'Please select a data plan.');
+      return false;
+    }
+    if (!amount) {
+      Alert.alert('Error', 'Amount cannot be empty.');
+      return false;
+    }
+    if (!phoneNumber) {
+      Alert.alert('Error', 'Please enter a phone number.');
+      return false;
+    }
+    return true;
+  };
+  const handleProceed = () => {
+    if (!areInputsValid()) return;
 
-  const handleProceed = async () => {
-    setShowPinInput(true); // Show the PIN input before proceeding
+    setShowPinInput(true);
   };
 
   const handleVerifyPinSuccess = async () => {
-    setShowPinInput(false)
+    setShowPinInput(false);
     setLoading(true);
   
     const user = await getAuth();
@@ -134,7 +175,6 @@ export default function BuyDataScreen() {
       networkId: networkId,
       ported: ported
     });
-    console.log(data)
 
     try {
       const response = await axios.post(constants.url + "buy-data.php", data, {
@@ -155,64 +195,66 @@ export default function BuyDataScreen() {
     }
   };
 
-
   return (
-    <View style={styles.container}>
-      <Text>Select Network:</Text>
-      <NetworkSelector onSelect={setSelectedNetwork} />
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : 'height'} style={{flex: 1}}>
+        <View style={styles.container}>
+          <Text>Select Network:</Text>
+          <NetworkSelector onSelect={setSelectedNetwork} />
 
-      <Text>Select Data Type:</Text>
-      <Picker
-        selectedValue={selectedDataType}
-        onValueChange={setSelectedDataType}
-        enabled={dataTypes.length > 0}
-      >
-        <Picker.Item label="Select Data Type" value={null} />
-        {dataTypes.map((type) => (
-          <Picker.Item key={type.value} label={type.label} value={type.value} />
-        ))}
-      </Picker>
+          <Text>Select Data Type:</Text>
+          <Picker
+            selectedValue={selectedDataType}
+            onValueChange={setSelectedDataType}
+            enabled={dataTypes.length > 0}
+          >
+            <Picker.Item label="Select Data Type" value={null} />
+            {dataTypes.map((type) => (
+              <Picker.Item key={type.value} label={type.label} value={type.value} />
+            ))}
+          </Picker>
 
-      <Text>Select Data Plan:</Text>
-      <Picker
-        selectedValue={selectedPlan}
-        onValueChange={handlePlanChange}
-        enabled={filteredPlans.length > 0}
-      >
-        <Picker.Item label="Select Data Plan" value={null} />
-        {filteredPlans.map((plan) => (
-          <Picker.Item key={plan.planid} label={`${plan.name} ${plan.type} - ${plan.userprice} (${plan.day} days)`} value={plan.planid} />
-        ))}
-      </Picker>
+          <Text>Select Data Plan:</Text>
+          <Picker
+            selectedValue={selectedPlan}
+            onValueChange={handlePlanChange}
+            enabled={filteredPlans.length > 0}
+          >
+            <Picker.Item label="Select Data Plan" value={null} />
+            {filteredPlans.map((plan) => (
+              <Picker.Item key={plan.planid} label={`${plan.name} ${plan.type} - ${plan.userprice} (${plan.day} days)`} value={plan.planid} />
+            ))}
+          </Picker>
 
-      <InputField
-        label="Amount"
-        placeholder="Enter amount"
-        value={amount}
-        keyboardType="numeric"
-        onChangeText={(value) => setAmount(value)}
-        editable={false}
-        
-      />
+          <InputField
+            label="Amount"
+            placeholder="Enter amount"
+            value={amount}
+            keyboardType="numeric"
+            onChangeText={(value) => setAmount(value)}
+            editable={false}
+          />
 
-      <PhoneInput
-        label="Phone Number"
-        placeholder="Enter one mobile number per line or separate with commas"
-        keyboardType="phone-pad"
-        onChangeText={setPhoneNumber}
-      />
+          <PhoneInput
+            label="Phone Number"
+            placeholder="Enter one mobile number per line or separate with commas"
+            keyboardType="phone-pad"
+            onChangeText={setPhoneNumber}
+          />
 
-      <CheckBox checked={ported} checkedColor={colorsVar.primaryColor} title='Disable Number Validator' onIconPress={()=>setPorted(!ported)} />
+          <CheckBox checked={ported} checkedColor={colorsVar.primaryColor} title='Disable Number Validator' onIconPress={() => setPorted(!ported)} />
 
-      <CustomButton title="Proceed" loading={loading} onPress={handleProceed} />
-      {showPinInput && (
-        <TransactionPinInput
-          visible={showPinInput}
-          onVerify={handleVerifyPinSuccess} // Callback on successful verification
-          onClose={() => setShowPinInput(false)} // Callback to close the PIN input
-        />
-      )}
-    </View>
+          <CustomButton title="Proceed" loading={loading} onPress={handleProceed} />
+          {showPinInput && (
+            <TransactionPinInput
+              visible={showPinInput}
+              onVerify={handleVerifyPinSuccess}
+              onClose={() => setShowPinInput(false)}
+            />
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 

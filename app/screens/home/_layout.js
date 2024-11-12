@@ -10,7 +10,7 @@ const StackLayout = () => {
         name="topup"
         options={{ presentation: "modal", headerShown: false}}
       />
-      <Stack.Screen name="airtime" options={{ title: "Buy Airtime" }} />
+      <Stack.Screen name="airtime" options={{ title: "Buy Airtime"  }} />
       <Stack.Screen name="buydata" options={{ title: "Buy Data" }} />
       <Stack.Screen name="electricity" options={{ title: "Buy Electricity" }} />
 

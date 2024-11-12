@@ -12,7 +12,7 @@ import { getAuth } from '../../utils/util';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { CheckBox } from '@rneui/themed';
-import { TransactionPinInput } from '../../components/TransactionPinInput'; // Import the PIN input component
+import { TransactionPinInput } from '../../components/TransactionPinInput';
 
 export default function BuyAirtimeScreen() {
   const [networks, setNetworks] = useState([]);
@@ -23,7 +23,7 @@ export default function BuyAirtimeScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [ported, setPorted] = useState(false);
-  const [showPinInput, setShowPinInput] = useState(false); // New state for showing PIN input
+  const [showPinInput, setShowPinInput] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -49,12 +49,59 @@ export default function BuyAirtimeScreen() {
     setDiscountedAmount((parseFloat(amount) - parseFloat(discount)).toFixed(2));
   }, [amount]);
 
+  // Check airtime type availability
+  const checkAirtimeTypeAvailability = () => {
+    if (selectedNetwork && airtimeType) {
+      const network = networks.find((item) => item.network === selectedNetwork);
+      if (network) {
+        const isAirtimeTypeAvailable = (airtimeType === 'VTU' && network.vtuStatus === 'On') ||
+                                       (airtimeType === 'Share And Sell' && network.shareAndSellStatus === 'On');
+
+        if (!isAirtimeTypeAvailable) {
+          Alert.alert(
+            'Not Available',
+            `The selected ${airtimeType} type is currently unavailable. Please try a different airtime type.`
+          );
+          setAirtimeType(''); // Reset the airtime type selection
+          return;
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkAirtimeTypeAvailability();
+  }, [selectedNetwork, airtimeType]);
+
+  const areInputsValid = () => {
+    if (!selectedNetwork) {
+      Alert.alert('Error', 'Please select a network.');
+      return false;
+    }
+    if (!airtimeType) {
+      Alert.alert('Error', 'Please select an airtime type.');
+      return false;
+    }
+    if (!amount) {
+      Alert.alert('Error', 'Please enter an amount.');
+      return false;
+    }
+    if (!phoneNumber) {
+      Alert.alert('Error', 'Please enter a phone number.');
+      return false;
+    }
+    return true;
+  };
+
   const handleProceed = async () => {
-    setShowPinInput(true); // Show the PIN input when Proceed is clicked
+    if (!areInputsValid()) return;
+    checkAirtimeTypeAvailability(); // Double-check before proceeding
+    setShowPinInput(true);
   };
 
   const handleVerifyPinSuccess = async () => {
-    setShowPinInput(false); // Hide PIN input after verification
+    setShowPinInput(false);
+    
     setLoading(true);
 
     const user = await getAuth();
@@ -97,7 +144,6 @@ export default function BuyAirtimeScreen() {
       console.error(error);
       setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -136,12 +182,11 @@ export default function BuyAirtimeScreen() {
 
       <CustomButton title="Proceed" loading={loading} onPress={handleProceed} />
       
-      {/* Show the PIN input if showPinInput is true */}
       {showPinInput && (
         <TransactionPinInput
           visible={showPinInput}
-          onVerify={handleVerifyPinSuccess} // Callback after successful PIN verification
-          onClose={() => setShowPinInput(false)} // Close the PIN input if cancelled
+          onVerify={handleVerifyPinSuccess}
+          onClose={() => setShowPinInput(false)}
         />
       )}
     </View>
