@@ -1,15 +1,19 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { colorsVar } from "../utils/colors";
+import { useRouter } from "expo-router";
 
 const ContentCard = ({ item }) => {
   // Define transaction success based on status
   const transactionStatus = item.status == 0; // Assuming 0 is for success
   const statusColor = transactionStatus ? "green" : "red";
+  const router = useRouter()
 
   return (
-    <View style={styles.cardContainer}>
-      {/* Vertical line based on status */}
+    <TouchableOpacity
+  style={styles.cardContainer}
+  onPress={() => router.push({ pathname: "screens/transactions/receipt", params: item })}> 
+ {/* Vertical line based on status */}
       <View style={[styles.statusLine, { backgroundColor: statusColor }]} />
 
       {/* Card content */}
@@ -28,7 +32,7 @@ const ContentCard = ({ item }) => {
           )}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

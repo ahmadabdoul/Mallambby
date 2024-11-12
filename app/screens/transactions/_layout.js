@@ -6,6 +6,7 @@ const StackLayout = () => {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: true, title: "Transactions" }} />
+      <Stack.Screen name="receipt" options={{ headerShown: true, title: "Transaction Receipt" }} />
     </Stack>
   );
 };
