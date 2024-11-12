@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, Text } from 'react-native';
+import { View, StyleSheet, Alert, Text, ScrollView, Platform, KeyboardAvoidingView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 import { NetworkSelector } from '../../components/NetworkSelector';
@@ -147,6 +147,9 @@ export default function BuyAirtimeScreen() {
   };
 
   return (
+    <ScrollView showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? 'padding' : 'height'} style={{flex: 1}}>
+  
     <View style={styles.container}>
       <Text>Select Network:</Text>
       <NetworkSelector onSelect={setSelectedNetwork} />
@@ -190,6 +193,8 @@ export default function BuyAirtimeScreen() {
         />
       )}
     </View>
+    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 
